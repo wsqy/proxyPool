@@ -8,8 +8,8 @@ class ProxyPool(models.Model):
     port = models.SmallIntegerField(verbose_name="port")
     protocol = models.CharField(max_length=7, verbose_name="代理类型", default="HTTP")
     address = models.CharField(max_length=30, verbose_name="归宿地", default="")
-    anonymous = models.BooleanField(verbose_name="是否匿名", default=1)
-    abroad = models.BooleanField(verbose_name="是否是国外ip", default=0)
+    anonymous = models.BooleanField(verbose_name="是否匿名", default=True)
+    abroad = models.BooleanField(verbose_name="是否是国外ip", default=False)
     available = models.SmallIntegerField(verbose_name="可用性", default=3)
 
     class Meta:

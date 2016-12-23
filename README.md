@@ -75,11 +75,11 @@ PORT
 可用性(这里的可用性，是因为 免费的IP稳定性差  说不准啥时候就失效了，   我们在这里设置一个评分机制，初始为3分， 每次代理访问失败， 这里的可用性-1， 当可用性为0的时候  我们就认为其是无效的代理的  就不使用它了
 )   
 ```
+
 2. 根据字段分析 进行model设计
+
 ```
 from django.db import models
-
-
 # Create your models here.
 class ProxyPool(models.Model):
     # verbose_name 这里是设置字段显示的名称
@@ -90,7 +90,6 @@ class ProxyPool(models.Model):
     anonymous = models.BooleanField(verbose_name="是否匿名", default=1)
     abroad = models.BooleanField(verbose_name="是否是国外ip", default=0)
     available = models.SmallIntegerField(verbose_name="可用性", default=3)
-
     class Meta:
         # 设置的是后台显示表名  默认是类名
         verbose_name = "代理"
@@ -98,19 +97,20 @@ class ProxyPool(models.Model):
         verbose_name_plural = "代理池"
         # 是设置某几个字段 联合起来在表中唯一
         unique_together = (("ip", "port"), )
-
     # 设置实例的显示值
     def __str__(self):
         return self.ip
 ```
 
 3. 同步数据库
+
 ```
 python manage.py makemigrations
 python manage.py migrate
-
 ```
+
 4. 创建用户
+
 ```
 python manage.py createsuperuser
 python manage.py changepassword
@@ -119,8 +119,6 @@ python manage.py changepassword
 5. 在admin.py里注册自己的应用
 ```
 from proxyPool.models import ProxyPool
-
-
 @admin.register(ProxyPool)
 class ProxyPoolAdmin(admin.ModelAdmin):
     # 定义前端可显示的
@@ -128,6 +126,18 @@ class ProxyPoolAdmin(admin.ModelAdmin):
 # admin.site.register(ProxyPool)
 # admin.site.register(ProxyPool, ProxyPoolAdmin)
 ```
+
+6. 增加咱自己的批量动作
+```
+# 批量设置代理ip失效
+def proxy_invalid(modeladmin, request, queryset):
+    queryset.update(available=0)
+proxy_invalid.short_description = "批量设置代理ip失效"
+
+actions = (set_abroad, proxy_invalid, )
+```
+
+
 
 ### 现在开始爬取部分
 
