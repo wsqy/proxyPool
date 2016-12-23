@@ -146,16 +146,19 @@ actions = (set_abroad, proxy_invalid, )
 pip install requests
 pip install BeautifulSoup4
 # 新建文件，import 他们
+import requests
+from bs4 import BeautifulSoup
 ```
 
 2. 爬取的目标是
 ```
-http://www.xicidaili.com/
+http://www.xicidaili.com/nn/
 ```
+
 3. 为了防止反爬虫， 先把header保存下来
 ```
 Headers = {
-    "Host": "fs.xicidaili.com",
+    "Host": "www.xicidaili.com",
     "Cookie": "CNZZDATA1256960793=1662416928-1459134890-%7C1461144106; _free_proxy_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFVEkiJTUzYzVkYmViZWYzNDY5YjFlNWVhNjFkZDhlYWZkYTE2BjsAVEkiEF9jc3JmX3Rva2VuBjsARkkiMUI1aTgrenAzTXBiUVpqQ21CZjh4MlFQRE1RWjZJMzl3ZnNweEs2azhTc3c9BjsARg%3D%3D--2c0a55d5198a778ed50af34e2b356ab878c17d72",
     "User-Agent": r"Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0",
     "Accept": r"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -176,5 +179,99 @@ print(r.text)
 5. 结构分析
 
 ```
+soup = BeautifulSoup(r.content, "html.parser")
+ListProxy = soup.find_all("tr")
 # 我整理的常用bs4用法 http://note.youdao.com/noteshare?id=752429deecdb4b12dd93583cfcac1493
+```
+
+
+6. 在项目里包含路由
+```
+#
+from django.conf.urls import url, include
+from django.contrib import admin
+
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^proxyPool/', include('proxyPool.urls')),
+]
+```
+
+7. 在app里 增加路由
+```
+from . import views
+from django.conf.urls import include, url
+
+app_name = 'proxyPool'
+
+urlpatterns = [
+    url(r'^addxici', views.addxici, name='addxici'),
+]
+```
+
+8. 在views里简单写个 addxici函数 测试下
+```
+from django.http import HttpResponse
+
+
+# Create your views here.
+def addxici(request):
+    return HttpResponse("it's ok")
+```
+
+
+9. 把爬取的代码贴到adxici里
+```
+import json
+
+import requests
+from bs4 import BeautifulSoup
+
+from django.shortcuts import render
+from django.http import HttpResponse
+
+Headers = {
+    "Host": "www.xicidaili.com",
+    "Cookie": "CNZZDATA1256960793=1662416928-1459134890-%7C1461144106; _free_proxy_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFVEkiJTUzYzVkYmViZWYzNDY5YjFlNWVhNjFkZDhlYWZkYTE2BjsAVEkiEF9jc3JmX3Rva2VuBjsARkkiMUI1aTgrenAzTXBiUVpqQ21CZjh4MlFQRE1RWjZJMzl3ZnNweEs2azhTc3c9BjsARg%3D%3D--2c0a55d5198a778ed50af34e2b356ab878c17d72",
+    "User-Agent": r"Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0",
+    "Accept": r"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept_Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+    "Accept_Encoding": r"gzip, deflate",
+    "Connection": r"keep-alive",
+    "Cache-Control": r"max-age=0",
+}
+
+
+# Create your views here.
+def addxici(request):
+    url = r'http://www.xicidaili.com/nn/'
+    try:
+        r = requests.get(url, headers=Headers, proxies=None)
+        soup = BeautifulSoup(r.content, "html.parser")
+        # ListProxy = soup.find_all("tr", limit=2)
+        ListProxy = soup.find_all("tr")
+    except Exception as e:
+        mes = "获取西祠代理失败：%s" % e
+        print(mes)
+    else:
+        # 循环每条数据
+        proxy_all = []
+        for i in ListProxy:
+            info_list = {'anonymous': True}
+            # 属性中没有 class属性代表就是标题，这种是跳过的
+            if 'class' in i.attrs:
+                infos = i.find_all("td")
+                # enumerate依次迭代
+                for index, info in enumerate(infos):
+                    if index == 1:
+                        info_list["ip"] = info.text.strip()
+                    elif index == 2:
+                        info_list["port"] = info.text.strip()
+                    elif index == 3:
+                        info_list["address"] = info.text.strip()
+                    elif index == 5:
+                        info_list["protocol"] = info.text.strip()
+                # print(info_list)
+            proxy_all.append(info_list)
+    return HttpResponse(json.dumps(proxy_all))
 ```

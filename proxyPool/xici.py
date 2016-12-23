@@ -15,20 +15,38 @@ Headers = {
 
 
 def getinfo(url=None):
+    # 如果url没穿参数，默认爬取 西祠的国内高匿页面
     if url is None:
-        url = r'http://www.xicidaili.com/'
+        url = r'http://www.xicidaili.com/nn/'
     try:
         r = requests.get(url, headers=Headers, proxies=None)
-        soup = BeautifulSoup(r.text, "html.parser")
-        ListProxy = soup.find_all("tr", limit=3)
-        print(ListProxy)
+        soup = BeautifulSoup(r.content, "html.parser")
+        ListProxy = soup.find_all("tr", limit=2)
     except Exception as e:
         mes = "获取西祠代理失败：%s" % e
         print(mes)
+    else:
+        # 循环每条数据
+        for i in ListProxy:
+            info_list = {'anonymous': True}
+            # 属性中没有 class属性代表就是标题，这种是跳过的
+            if 'class' in i.attrs:
+                infos = i.find_all("td")
+                # enumerate依次迭代
+                for index, info in enumerate(infos):
+                    if index == 1:
+                        info_list["ip"] = info.text.strip()
+                    elif index == 2:
+                        info_list["port"] = info.text.strip()
+                    elif index == 3:
+                        info_list["address"] = info.text.strip()
+                    elif index == 5:
+                        info_list["protocol"] = info.text.strip()
+                print(info_list)
 
 
 if __name__ == '__main__':
-    # url = r'http://www.xicidaili.com/'
+    # url = r'http://www.xicidaili.com/nn/'
     # r = requests.get(url, headers=Headers, proxies=None)
-    # print(r.text)
+    # print(r.content)
     p = getinfo()
