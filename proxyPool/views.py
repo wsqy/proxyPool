@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from django.shortcuts import render
 from django.http import HttpResponse
 
+from .models import ProxyPool
 Headers = {
     "Host": "www.xicidaili.com",
     "Cookie": "CNZZDATA1256960793=1662416928-1459134890-%7C1461144106; _free_proxy_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFVEkiJTUzYzVkYmViZWYzNDY5YjFlNWVhNjFkZDhlYWZkYTE2BjsAVEkiEF9jc3JmX3Rva2VuBjsARkkiMUI1aTgrenAzTXBiUVpqQ21CZjh4MlFQRE1RWjZJMzl3ZnNweEs2azhTc3c9BjsARg%3D%3D--2c0a55d5198a778ed50af34e2b356ab878c17d72",
@@ -28,10 +29,9 @@ def addxici(request):
         ListProxy = soup.find_all("tr")
     except Exception as e:
         mes = "获取西祠代理失败：%s" % e
-        print(mes)
+        return mes
     else:
         # 循环每条数据
-        proxy_all = []
         for i in ListProxy:
             info_list = {'anonymous': True}
             # 属性中没有 class属性代表就是标题，这种是跳过的
@@ -47,6 +47,9 @@ def addxici(request):
                         info_list["address"] = info.text.strip()
                     elif index == 5:
                         info_list["protocol"] = info.text.strip()
-                # print(info_list)
-            proxy_all.append(info_list)
-    return HttpResponse(json.dumps(proxy_all))
+                try:
+                    ProxyPool.objects.create(**info_list)
+                    print("添加成功")
+                except Exception as e:
+                    print("添加代理失败：%s" % e)
+    return HttpResponse(json.dumps("添加一页代理数据成功"))

@@ -252,7 +252,7 @@ def addxici(request):
         ListProxy = soup.find_all("tr")
     except Exception as e:
         mes = "获取西祠代理失败：%s" % e
-        print(mes)
+        return mes
     else:
         # 循环每条数据
         proxy_all = []
@@ -274,4 +274,23 @@ def addxici(request):
                 # print(info_list)
             proxy_all.append(info_list)
     return HttpResponse(json.dumps(proxy_all))
+```
+
+10. 加载数据库模型
+```
+from .models import ProxyPool
+```
+
+11. 存数据库，修改addxic代码
+```
+修改 print(info_list) 改为：
+try:
+    ProxyPool.objects.create(**info_list)
+    print("添加成功")
+except Exception as e:
+    print("添加代理失败：%s" % e)
+
+删除 proxy_all.append(info_list)
+
+修改 return HttpResponse(json.dumps(proxy_all))  改为  return HttpResponse(json.dumps("添加一页代理数据成功"))
 ```
