@@ -112,7 +112,7 @@ python manage.py migrate
 4. 创建用户
 
 ```
-python manage.py createsuperuser
+python manage.py createsuperuser  用户:qy  密码:1234abcd
 python manage.py changepassword
 ```
 
