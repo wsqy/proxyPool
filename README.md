@@ -69,7 +69,7 @@ DATABASES = {
 
 ### 现在开始爬取部分
 
-1.安装依赖，
+1. 安装依赖
 ```
 pip install requests
 pip install BeautifulSoup4
