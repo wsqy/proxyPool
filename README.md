@@ -110,7 +110,24 @@ python manage.py makemigrations
 python manage.py migrate
 
 ```
+4. 创建用户
+```
+python manage.py createsuperuser
+python manage.py changepassword
+```
 
+5. 在admin.py里注册自己的应用
+```
+from proxyPool.models import ProxyPool
+
+
+@admin.register(ProxyPool)
+class ProxyPoolAdmin(admin.ModelAdmin):
+    # 定义前端可显示的
+    list_display = ('id', 'ip', 'port', 'protocol', 'address', 'anonymous', 'abroad', 'available')
+# admin.site.register(ProxyPool)
+# admin.site.register(ProxyPool, ProxyPoolAdmin)
+```
 
 ### 现在开始爬取部分
 

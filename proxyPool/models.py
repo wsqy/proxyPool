@@ -21,5 +21,5 @@ class ProxyPool(models.Model):
         unique_together = (("ip", "port"), )
 
     # 设置实例的显示值
-    # def __str__(self):
-    #     return self.ip
+    def __str__(self):
+        return "%s:%s" % (self.ip, self.port)
