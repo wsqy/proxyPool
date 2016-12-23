@@ -21,6 +21,9 @@ Headers = {
 
 # Create your views here.
 def addxici(request):
+    """
+    获取西祠 国内高匿代理 的首页100条数据
+    """
     url = r'http://www.xicidaili.com/nn/'
     try:
         r = requests.get(url, headers=Headers, proxies=None)
@@ -53,3 +56,17 @@ def addxici(request):
                 except Exception as e:
                     print("添加代理失败：%s" % e)
     return HttpResponse(json.dumps("添加一页代理数据成功"))
+
+
+def getproxy(request):
+    ipProxy = ProxyPool.objects.filter(available__gt=0)[0]
+    res = {
+        "code": 200,
+        "ip": ipProxy.ip,
+        "port": ipProxy.port,
+        "protocol": ipProxy.protocol,
+        "address": ipProxy.address,
+        "anonymous": ipProxy.anonymous,
+        "abroad": ipProxy.abroad,
+    }
+    return HttpResponse(json.dumps(res))
