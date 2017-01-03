@@ -344,3 +344,18 @@ class SiteAdmin(admin.ModelAdmin):
     # 定义前端可编辑的
     list_editable = ('name', 'website',)
 ```
+
+
+我们的代理ip，就需要设置一下来源了
+代理IP和站点是一对多的关系，设置下外键
+```
+class ProxyPool(models.Model):
+    .....
+    models.ForeignKey(website, verbose_name="站点")
+```
+同步一下看下:
+
+```
+python manage.py makemigrations
+python manage.py migrate
+```

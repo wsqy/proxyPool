@@ -30,6 +30,7 @@ class ProxyPool(models.Model):
     anonymous = models.BooleanField(verbose_name="是否匿名", default=True)
     abroad = models.BooleanField(verbose_name="是否是国外ip", default=False)
     available = models.SmallIntegerField(verbose_name="可用性", default=3)
+    site = models.ForeignKey(Site, verbose_name="站点", default=1)
 
     class Meta:
         # 设置的是后台显示表名  默认是类名
