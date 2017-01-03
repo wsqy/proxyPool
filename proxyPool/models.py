@@ -24,8 +24,12 @@ class ProxyManager(models.Manager):
     """
     自定义代理池的管理器，主要是为了提供一个随机获取的方法
     """
-    def hello(self):
-        return "11qq"
+    # def randomOne(self, querySet):
+    #     import random
+    #     proxyCount = querySet.count()
+    #     ipProxy = querySet[random.randint(0, proxyCount - 1)]
+    #     return ipProxy
+    pass
 
 
 class ProxyPool(models.Model):

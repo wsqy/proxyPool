@@ -73,5 +73,16 @@ def getproxy(request):
 
 
 def testmanage(request):
-    ipProxy = ProxyPool.objects.hello()
-    return HttpResponse(json.dumps(ipProxy))
+    # order_by('?')表示乱序
+    ipProxy = ProxyPool.objects.filter(available__gt=0).order_by('?')[0]
+    res = {
+        "code": 200,
+        "ip": ipProxy.ip,
+        "port": ipProxy.port,
+        "protocol": ipProxy.protocol,
+        "address": ipProxy.address,
+        "anonymous": ipProxy.anonymous,
+        "abroad": ipProxy.abroad,
+        "site": ipProxy.site.name,
+    }
+    return HttpResponse(json.dumps(res))

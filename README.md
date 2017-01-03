@@ -419,3 +419,17 @@ def testmanage(request):
 url(r'^testmanage', views.testmanage, name='testmanage'),
 
 测试 没有问题了
+
+
+这时候Ryan给我提供一个方法:order_by("?")这里就是随机取了
+试验下:
+修改 views里的代码 :
+```
+ipProxy = ProxyPool.objects.filter(available__gt=0).order_by('?')[0]
+```
+
+发现确实能够随机取，为了看下sql在settings里增加一个日志的配置，使用我配置的日志器 需要在项目文件夹中新建文件夹log【app同级目录】
+```
+
+```
+发现 order_by("?") 其实就是 ORDER BY RANDOM()
