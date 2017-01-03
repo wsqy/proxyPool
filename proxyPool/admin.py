@@ -1,5 +1,5 @@
 from django.contrib import admin
-from proxyPool.models import ProxyPool
+from proxyPool.models import ProxyPool, Site
 
 
 # 批量设置选中的为国外代理
@@ -21,6 +21,15 @@ class ProxyPoolAdmin(admin.ModelAdmin):
     # 定义前端可编辑的
     list_editable = ('available', )
     actions = (set_abroad, proxy_invalid, )
+
+
+@admin.register(Site)
+class SiteAdmin(admin.ModelAdmin):
+    # 定义前端可显示的
+    list_display = ('id', 'name', 'email', 'website',)
+    # 定义前端可编辑的
+    list_editable = ('name', 'website',)
+
 
 # admin.site.register(ProxyPool)
 # admin.site.register(ProxyPool, ProxyPoolAdmin)

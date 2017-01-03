@@ -294,3 +294,51 @@ except Exception as e:
 
 修改 return HttpResponse(json.dumps(proxy_all))  改为  return HttpResponse(json.dumps("添加一页代理数据成功"))
 ```
+
+
+#### 代理池项目进阶
+我们之前只爬取了 西祠的代理  一般情况下就够用了  但是如果我们想爬取多个网站的时候  最好还是要标明一下 代理的来源的  
+所以  首先加个站点记录：站点表需要 有 站点名  网址 邮箱
+```
+class Site(models.Model):
+    """
+    站点表需要 有 站点名  网址 邮箱(基本不需要，这里添加在这里是为了给大家展示怎么设置 字段可以为空）
+    """
+    # 必须要有 max_length参数 verbose_name定义展示的时候字段的显示出来的名字
+    name = models.CharField(max_length=30, verbose_name="网站名")
+    # EmailField是django在CharField上扩展定义的  会对字符串做是否是邮箱的检查；blank=True 代表可以为空白
+    email = models.EmailField(blank=True, verbose_name="邮箱")
+    # URLField是django在CharField上扩展定义的  会对字符串做是否是网址的检查；如果只需要定义一个 verbose_name，可以省略
+    website = models.URLField("网址")
+
+    class Meta:
+        verbose_name = "站点"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name
+```
+
+好同步一下看下:
+
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+这时候注册模型到后台管理界面
+```
+from proxyPool.models import Site
+admin.site.register(Site)
+```
+增加一条 西祠网站的记录
+```
+西祠代理  http://www.xicidaili.com  邮箱留空
+```
+
+扩展下站点的admin注册类：
+@admin.register(Site)
+class SiteAdmin(admin.ModelAdmin):
+    # 定义前端可显示的
+    list_display = ('id', 'name', 'email', 'website',)
+    # 定义前端可编辑的
+    list_editable = ('name', 'website',)
