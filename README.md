@@ -351,11 +351,18 @@ class SiteAdmin(admin.ModelAdmin):
 ```
 class ProxyPool(models.Model):
     .....
-    models.ForeignKey(website, verbose_name="站点")
+    site = models.ForeignKey(Site, verbose_name="站点", default=1)
 ```
 同步一下看下:
 
 ```
 python manage.py makemigrations
 python manage.py migrate
+```
+
+代理的注册类修改下:
+```
+    ...
+    list_display = ('id', 'ip', 'port', 'protocol', 'address', 'anonymous', 'abroad', 'available', 'site', )
+    ....
 ```
