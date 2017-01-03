@@ -336,9 +336,11 @@ admin.site.register(Site)
 ```
 
 扩展下站点的admin注册类：
+```
 @admin.register(Site)
 class SiteAdmin(admin.ModelAdmin):
     # 定义前端可显示的
     list_display = ('id', 'name', 'email', 'website',)
     # 定义前端可编辑的
     list_editable = ('name', 'website',)
+```
