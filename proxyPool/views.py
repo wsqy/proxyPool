@@ -70,3 +70,8 @@ def getproxy(request):
         "abroad": ipProxy.abroad,
     }
     return HttpResponse(json.dumps(res))
+
+
+def testmanage(request):
+    ipProxy = ProxyPool.objects.hello()
+    return HttpResponse(json.dumps(ipProxy))

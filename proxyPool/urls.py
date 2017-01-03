@@ -7,4 +7,5 @@ app_name = 'proxyPool'
 urlpatterns = [
     url(r'^addxici', views.addxici, name='addxici'),
     url(r'^getproxy', views.getproxy, name='getproxy'),
+    url(r'^testmanage', views.testmanage, name='testmanage'),
 ]

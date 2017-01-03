@@ -366,3 +366,56 @@ python manage.py migrate
     list_display = ('id', 'ip', 'port', 'protocol', 'address', 'anonymous', 'abroad', 'available', 'site', )
     ....
 ```
+
+
+准备工作 做好了  现在  访问下 url(r'^addxici', views.addxici, name='addxici')  这是增加代理的接口
+
+蹬蹬瞪    又增加了差不多100个代理
+
+
+再看下调用api获取一个代理的方法
+url(r'^getproxy', views.getproxy, name='getproxy'),
+
+返回值
+```
+{"address": "\u6d59\u6c5f\u676d\u5dde", "code": 200, "port": 80, "anonymous": true, "abroad": false, "protocol": "HTTP", "ip": "183.129.151.130"}
+```
+
+
+你会发现 不管你调用多少遍   返回的代理都是同一个   为什么呢？？？  看views中
+```
+def getproxy(request):
+    ipProxy = ProxyPool.objects.filter(available__gt=0)[0]
+    .....
+```
+都是返回第一个  这里我们要修改一下   返回的应该是 随机的一个
+我查阅文档是好像是没有发现有提供随机返回一个的方法的
+我这里准备使用一个比较高级的方法   自定义objects管理器的方法
+我们所有的方法比如 filter  count 等等都是objects给我们提供的方法   那么很自然的 如果 他没有提供给我们一个方法  我们只需要继承，扩展他就好了，这里我们 定义一个管理器ProxyManager继承原有的管理器
+
+在models里定义一个管理器
+```
+class ProxyManager(models.Manager):
+    """
+    自定义代理池的管理器，主要是为了提供一个随机获取的方法
+    """
+    def hello(self):
+        return "11qq"
+```
+
+还要记得在模型里加上这一句话:
+```
+objects = ProxyManager()
+```
+现在实现一个views
+```
+def testmanage(request):
+    ipProxy = ProxyPool.objects.hello()
+    return HttpResponse(json.dumps(ipProxy))
+```
+这里的结果应该就是返回 '11qq'了
+
+设置一个路由 ：
+url(r'^testmanage', views.testmanage, name='testmanage'),
+
+测试 没有问题了
