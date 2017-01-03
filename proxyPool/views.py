@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from .models import ProxyPool
 Headers = {
@@ -59,30 +59,57 @@ def addxici(request):
 
 
 def getproxy(request):
-    ipProxy = ProxyPool.objects.filter(available__gt=0)[0]
+    """
+    获取代理的方法
+    必有的返回参数
+        code： 状态码
+            000 未开始
+            200 正常
+            304 需求的代理暂时无法满足
+            404 get请求abroad 参数类型错误
+    当请求成功，状态码为200时特有的参数
+        ip         代理ip
+        port       代理ip的port
+        protocol   代理的类型 HTTP还是HTTPS
+        address    代理ip的所在地
+        anonymous  是否是匿名的代理
+        abroad     是否是国外的代理
+        site       代理的来源站
+
+    """
+    # 默认未开始
     res = {
-        "code": 200,
-        "ip": ipProxy.ip,
-        "port": ipProxy.port,
-        "protocol": ipProxy.protocol,
-        "address": ipProxy.address,
-        "anonymous": ipProxy.anonymous,
-        "abroad": ipProxy.abroad,
+        "code": 000,
+        "mes": "NO Start"
     }
-    return HttpResponse(json.dumps(res))
+    # abroad看能不能转成整数，不能返回 4xx错误
+    try:
+        abroad = int(request.GET.get("abroad", 0))
+    except Exception as e:
+        res['code'] = 404
+        res['mes'] = "abroad必须为整数,0代表获取一个国内代理,1代表获取一个国外代理"
+        return JsonResponse(res)
+    # order_by('?')表示乱序
+
+    # 随机返回一个符合条件的代理，如果没有可用代理， 返回 3xx错误
+    try:
+        ipProxy = ProxyPool.objects.filter(available__gt=0, abroad=abroad).order_by('?')[0]
+    except (IndexError, TypeError) as e:
+        res['code'] = 304
+        abroad = "国内" if abroad == 0 else "国外"
+        res['mes'] = "暂无可用%s代理" % (abroad)
+        return JsonResponse(res)
+    else:
+        res["code"] = 200
+        res["ip"] = ipProxy.ip
+        res["port"] = ipProxy.port
+        res["protocol"] = ipProxy.protocol
+        res["address"] = ipProxy.address
+        res["anonymous"] = ipProxy.anonymous
+        res["abroad"] = ipProxy.abroad
+        res["site"] = ipProxy.site.name
+    return JsonResponse(res)
 
 
 def testmanage(request):
-    # order_by('?')表示乱序
-    ipProxy = ProxyPool.objects.filter(available__gt=0).order_by('?')[0]
-    res = {
-        "code": 200,
-        "ip": ipProxy.ip,
-        "port": ipProxy.port,
-        "protocol": ipProxy.protocol,
-        "address": ipProxy.address,
-        "anonymous": ipProxy.anonymous,
-        "abroad": ipProxy.abroad,
-        "site": ipProxy.site.name,
-    }
-    return HttpResponse(json.dumps(res))
+    return HttpResponse("test")

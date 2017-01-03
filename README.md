@@ -430,6 +430,32 @@ ipProxy = ProxyPool.objects.filter(available__gt=0).order_by('?')[0]
 
 发现确实能够随机取，为了看下sql在settings里增加一个日志的配置，使用我配置的日志器 需要在项目文件夹中新建文件夹log【app同级目录】
 ```
+日志配置的详细代码查看github
+https://github.com/wsqy/proxyPool/blob/master/proxyTest/settings.py#L124
+```
+
+发现 order_by("?") 其实就是 ORDER BY RANDOM()
+
+
+开始完善api ，现在能提供一个代理了  那如果客户需要指定我就用国外代理怎么办呢，  我们可以 用get请求  直接加个参数就行了
 
 ```
-发现 order_by("?") 其实就是 ORDER BY RANDOM()
+"""
+获取代理的方法
+必有的返回参数
+    code： 状态码
+        000 未开始
+        200 正常
+        304 需求的代理暂时无法满足
+        404 get请求abroad 参数类型错误
+当请求成功，状态码为200时特有的参数
+    ip         代理ip
+    port       代理ip的port
+    protocol   代理的类型 HTTP还是HTTPS
+    address    代理ip的所在地
+    anonymous  是否是匿名的代理
+    abroad     是否是国外的代理
+    site       代理的来源站
+"""
+getproxy详细代码 参考views.py
+````
