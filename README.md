@@ -489,3 +489,26 @@ get_dict_proxy查看views的相应部分
 
 但是到目前为止我们都还没有 做可用性的调整，导致我们随机取出一个给调用api的用户确并不能保证可用性的尴尬
 为了防止此问题我们可用写一个视图随机取出ip并验证是否可用的视图，如果可用，且分值小于3则加1，如果是3则不变，如果不可用则分值减1，分值为0 则删除此代理
+
+我们新建一个视图
+```
+def filter_proxy(request):
+    return HttpResponse(json.dumps("过滤成功一次"))
+```
+并且建立好映射:
+```
+url(r'^filter_proxy', views.filter_proxy, name='filter_proxy'),
+```
+
+测试代理是否失效的方案:轮流访问一个可用查看自己ip的网站，如果两次的ip不一致，则代理成功，否则，代理失败，在一定量时间没有请求响应也算请求失败
+
+url(r'^A', views.A, name='A'),
+def A(request):
+    a1 = request.GET.get("a1", 0)
+
+127.0.0.1/A?a1=4
+
+
+url(r'^B', views.B, name='B'),
+def A(request):
+    x = A(request=request,)

@@ -1,3 +1,4 @@
+import time
 import json
 
 import requests
@@ -18,6 +19,7 @@ Headers = {
     "Connection": r"keep-alive",
     "Cache-Control": r"max-age=0",
 }
+OrigionalIP = requests.get("http://1212.ip138.com/ic.asp", headers=Headers).content
 
 
 # Create your views here.
@@ -185,8 +187,56 @@ def get_dict_proxy(request):
     return JsonResponse(res)
 
 
+def testConnection(IP, PORT, PROTOCOL, REQ_TIMEOUT=2):
+    # proxies = {PROTOCOL: IP + ":" + PORT}
+    proxies = {
+        "http": "%s://%s:%s" % (PROTOCOL.lower(), IP, PORT),
+        "https": "%s://%s:%s" % (PROTOCOL.lower(), IP, PORT),
+    }
+    print(proxies)
+    try:
+        MaskedIP = requests.get("http://1212.ip138.com/ic.asp", timeout=REQ_TIMEOUT, proxies=proxies, headers=Headers).content
+        if OrigionalIP != MaskedIP:
+            print("代理ok")
+            return True
+        else:
+            print("代理失败")
+            return False
+    except Exception as e:
+        print(e)
+        print("---------")
+        print("代理超时%s" % IP)
+        print("---------")
+        return False
+
+
 def filter_proxy(request):
-    return HttpResponse(json.dumps("过滤成功一次"))
+    """
+    一次验证20个代理，失效的处理掉
+    """
+    # 随机取一个
+    ipProxylist = ProxyPool.objects.order_by('?')[0:20]
+    count = 0
+    for ipProxy in ipProxylist:
+        res = testConnection(ipProxy.ip, ipProxy.port, ipProxy.protocol)
+        # 代理成功
+        if res:
+            if ipProxy.available == 3:
+                # 可用性为3 不变
+                pass
+            else:
+                # 可用性 小于3 则+1
+                ipProxy.available += 1
+                ipProxy.save()
+        else:
+            # 不成功-1,可用性为0则删除
+            if ipProxy.available == 1:
+                ipProxy.delete()
+            else:
+                ipProxy.available -= 1
+                ipProxy.save()
+            count += 1
+    return HttpResponse("%s个代理失效了" % (count))
 
 
 def testmanage(request):
