@@ -188,12 +188,12 @@ def get_dict_proxy(request):
 
 
 def testConnection(IP, PORT, PROTOCOL, REQ_TIMEOUT=2):
-    # proxies = {PROTOCOL: IP + ":" + PORT}
+    指定 http和https请求都走我们获取的这个代理
     proxies = {
         "http": "%s://%s:%s" % (PROTOCOL.lower(), IP, PORT),
         "https": "%s://%s:%s" % (PROTOCOL.lower(), IP, PORT),
     }
-    print(proxies)
+    # 只有一致才任务代理是有效的  其余都是无效的
     try:
         MaskedIP = requests.get("http://1212.ip138.com/ic.asp", timeout=REQ_TIMEOUT, proxies=proxies, headers=Headers).content
         if OrigionalIP != MaskedIP:
@@ -239,5 +239,6 @@ def filter_proxy(request):
     return HttpResponse("%s个代理失效了" % (count))
 
 
-def testmanage(request):
-    return HttpResponse("test")
+def get_client_ip(request):
+    client_ip = request.META.get("REMOTE_ADDR", None)
+    return HttpResponse(client_ip)

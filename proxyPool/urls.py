@@ -9,5 +9,5 @@ urlpatterns = [
     url(r'^getproxy', views.getproxy, name='getproxy'),
     url(r'^get_dict_proxy', views.get_dict_proxy, name='get_dict_proxy'),
     url(r'^filter_proxy', views.filter_proxy, name='filter_proxy'),
-    url(r'^testmanage', views.testmanage, name='testmanage'),
+    url(r'^get_client_ip', views.get_client_ip, name='get_client_ip'),
 ]

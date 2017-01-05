@@ -20,18 +20,6 @@ class Site(models.Model):
         return self.name
 
 
-class ProxyManager(models.Manager):
-    """
-    自定义代理池的管理器，主要是为了提供一个随机获取的方法
-    """
-    # def randomOne(self, querySet):
-    #     import random
-    #     proxyCount = querySet.count()
-    #     ipProxy = querySet[random.randint(0, proxyCount - 1)]
-    #     return ipProxy
-    pass
-
-
 class ProxyPool(models.Model):
     # verbose_name 这里是设置字段显示的名称
     ip = models.GenericIPAddressField(verbose_name="ip")
@@ -43,8 +31,6 @@ class ProxyPool(models.Model):
     available = models.SmallIntegerField(verbose_name="可用性", default=3)
     # 代理IP和站点是一对多的关系，设置下外键，default=1这里之前加的西祠代理 的id就是1
     site = models.ForeignKey(Site, verbose_name="站点", default=1)
-
-    objects = ProxyManager()
 
     class Meta:
         # 设置的是后台显示表名  默认是类名

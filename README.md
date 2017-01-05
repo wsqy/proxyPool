@@ -501,14 +501,4 @@ url(r'^filter_proxy', views.filter_proxy, name='filter_proxy'),
 ```
 
 测试代理是否失效的方案:轮流访问一个可用查看自己ip的网站，如果两次的ip不一致，则代理成功，否则，代理失败，在一定量时间没有请求响应也算请求失败
-
-url(r'^A', views.A, name='A'),
-def A(request):
-    a1 = request.GET.get("a1", 0)
-
-127.0.0.1/A?a1=4
-
-
-url(r'^B', views.B, name='B'),
-def A(request):
-    x = A(request=request,)
+暂时使用的是[ip138 http://1212.ip138.com/ic.asp](http://1212.ip138.com/ic.asp)的ip查看页
