@@ -459,3 +459,36 @@ https://github.com/wsqy/proxyPool/blob/master/proxyTest/settings.py#L124
 """
 getproxy详细代码 参考views.py
 ````
+
+获取单个代理的方法我们已经知道了，这在一般情况中，我们应该已经就够用了
+
+现在来看另外一个需求:怎么一次获取一批代理呢?
+这个方法可以通过多次调用我们的getproxy方法，但是我们这里不这样做，我们写一个批量获取代理的views:get_dict_proxy
+我们其实也可以改造 getproxy视图，加一个参数就可以实现了，但是由于获取批量需求比较少，所以在这里单独写一个视图，并做好映射:url(r'^get_dict_proxy', views.get_dict_proxy, name='get_dict_proxy'),
+
+"""
+获取代理的方法, 可以指定数量
+必有的返回参数
+    code： 状态码
+        000 未开始
+        200 正常
+        201 爬取成功 数量不足要求
+        304 需求的代理暂时无法满足
+        404 get请求abroad 参数类型错误
+    mes: 说明信息
+当请求成功，状态码为2xx时特有的参数
+    count   返回代理的个数
+    result  键result是一个包含所有代理信息的列表
+        ip         代理ip
+        port       代理ip的port
+        protocol   代理的类型 HTTP还是HTTPS
+        address    代理ip的所在地
+        anonymous  是否是匿名的代理
+        abroad     是否是国外的代理
+        site       代理的来源站
+"""
+```
+get_dict_proxy查看views的相应部分
+```
+
+免费的代理肯定是有很多问题的，说不定什么时候就失效了， 我们防止失效用的是加了一个字段 available ，分值0-3，在api调用的时候 只过滤分值大于0的代理

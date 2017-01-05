@@ -67,6 +67,7 @@ def getproxy(request):
             200 正常
             304 需求的代理暂时无法满足
             404 get请求abroad 参数类型错误
+        mes :说明信息
     当请求成功，状态码为200时特有的参数
         ip         代理ip
         port       代理ip的port
@@ -75,7 +76,64 @@ def getproxy(request):
         anonymous  是否是匿名的代理
         abroad     是否是国外的代理
         site       代理的来源站
+    """
+    # 默认未开始
+    res = {
+        "code": 000,
+        "mes": "NO Start"
+    }
 
+    # abroad看能不能转成整数，不能返回 4xx错误
+    try:
+        abroad = int(request.GET.get("abroad", 0))
+    except Exception as e:
+        res['code'] = 404
+        res['mes'] = "abroad必须为整数,0代表获取一个国内代理,1代表获取一个国外代理"
+        return JsonResponse(res)
+
+    # 随机返回一个符合条件的代理，如果没有可用代理， 返回 3xx错误
+    try:
+        # order_by('?')表示乱序
+        ipProxy = ProxyPool.objects.filter(available__gt=0, abroad=abroad).order_by('?')[0]
+    except (IndexError, TypeError) as e:
+        res['code'] = 304
+        abroad = "国内" if abroad == 0 else "国外"
+        res['mes'] = "暂无可用%s代理" % (abroad)
+        return JsonResponse(res)
+    else:
+        res["code"] = 200
+        res["mes"] = "获取代理成功"
+        res["ip"] = ipProxy.ip
+        res["port"] = ipProxy.port
+        res["protocol"] = ipProxy.protocol
+        res["address"] = ipProxy.address
+        res["anonymous"] = ipProxy.anonymous
+        res["abroad"] = ipProxy.abroad
+        res["site"] = ipProxy.site.name
+    return JsonResponse(res)
+
+
+def get_dict_proxy(request):
+    """
+    获取代理的方法, 可以指定数量
+    必有的返回参数
+        code： 状态码
+            000 未开始
+            200 正常
+            201 爬取成功 数量不足要求
+            304 需求的代理暂时无法满足
+            404 get请求abroad 参数类型错误
+        mes: 说明信息
+    当请求成功，状态码为2xx时特有的参数
+        count   返回代理的个数
+        result  键result是一个包含所有代理信息的列表
+            ip         代理ip
+            port       代理ip的port
+            protocol   代理的类型 HTTP还是HTTPS
+            address    代理ip的所在地
+            anonymous  是否是匿名的代理
+            abroad     是否是国外的代理
+            site       代理的来源站
     """
     # 默认未开始
     res = {
@@ -87,27 +145,44 @@ def getproxy(request):
         abroad = int(request.GET.get("abroad", 0))
     except Exception as e:
         res['code'] = 404
-        res['mes'] = "abroad必须为整数,0代表获取一个国内代理,1代表获取一个国外代理"
+        res['mes'] = "参数错误:abroad必须为整数,0代表获取一个国内代理,1代表获取一个国外代理"
         return JsonResponse(res)
-    # order_by('?')表示乱序
 
-    # 随机返回一个符合条件的代理，如果没有可用代理， 返回 3xx错误
+    # count看能不能转成整数，不能返回 4xx错误
     try:
-        ipProxy = ProxyPool.objects.filter(available__gt=0, abroad=abroad).order_by('?')[0]
-    except (IndexError, TypeError) as e:
-        res['code'] = 304
-        abroad = "国内" if abroad == 0 else "国外"
-        res['mes'] = "暂无可用%s代理" % (abroad)
+        count_proxy = int(request.GET.get("count", 1))
+    except Exception as e:
+        res['code'] = 404
+        res['mes'] = "参数错误:返回的代理个数必须是整数"
         return JsonResponse(res)
+
+    # order_by('?')表示乱序
+    ipProxylist = ProxyPool.objects.filter(available__gt=0, abroad=abroad).order_by('?')[0:count_proxy]
+    ProxylistLen = len(ipProxylist)
+    if ProxylistLen == 0:
+        res["code"] = 304
+        res['mes'] = "暂无可用代理"
+        return JsonResponse(res)
+    # 键result是一个包含所有代理信息的列表
+    res['result'] = []
+    res['count'] = ProxylistLen
+    if ProxylistLen < count_proxy:
+        res['code'] = 201
+        res['mes'] = "代理数量不足"
     else:
-        res["code"] = 200
-        res["ip"] = ipProxy.ip
-        res["port"] = ipProxy.port
-        res["protocol"] = ipProxy.protocol
-        res["address"] = ipProxy.address
-        res["anonymous"] = ipProxy.anonymous
-        res["abroad"] = ipProxy.abroad
-        res["site"] = ipProxy.site.name
+        res['code'] = 200
+        res['mes'] = "获取代理成功"
+    # 循环结果 加入结果集
+    for ipProxy ipProxylist:
+        ress = {}
+        ress["ip"] = ipProxy.ip
+        ress["port"] = ipProxy.port
+        ress["protocol"] = ipProxy.protocol
+        ress["address"] = ipProxy.address
+        ress["anonymous"] = ipProxy.anonymous
+        ress["abroad"] = ipProxy.abroad
+        ress["site"] = ipProxy.site.name
+        res['result'].append(ress)
     return JsonResponse(res)
 
 
