@@ -34,9 +34,13 @@ def addxici(request):
         mes = "获取西祠代理失败：%s" % e
         return mes
     else:
+        try:
+            siteinfo = Site.objects.get(name="西祠代理")
+        except:
+            siteinfo = Site.objects.create(name="西祠代理", website="http://www.xicidaili.com/")
         # 循环每条数据
         for i in ListProxy:
-            info_list = {'anonymous': True, 'site': Site.objects.get(name="西祠代理")}
+            info_list = {'anonymous': True, 'site': siteinfo}
             # 属性中没有 class属性代表就是标题，这种是跳过的
             if 'class' in i.attrs:
                 infos = i.find_all("td")
@@ -88,7 +92,8 @@ def getproxy(request):
     # 随机返回一个符合条件的代理，如果没有可用代理， 返回 3xx错误
     try:
         # order_by('?')表示乱序
-        ipProxy = ProxyPool.objects.filter(available__gt=0, abroad=abroad).order_by('?')[0]
+        # __gt 代表 大于 ; __gte 代表 大于或等于 ; lt 代表 小于 ; __lte 代表 小于或等于
+        ipProxy = ProxyPool.objects.filter(available__gt=1, abroad=abroad).order_by('?')[0]
     except (IndexError, TypeError) as e:
         res['code'] = 304
         abroad = "国内" if abroad == 0 else "国外"
@@ -151,7 +156,7 @@ def get_dict_proxy(request):
         return JsonResponse(res)
 
     # order_by('?')表示乱序
-    ipProxylist = ProxyPool.objects.filter(available__gt=0, abroad=abroad).order_by('?')[0:count_proxy]
+    ipProxylist = ProxyPool.objects.filter(available__gt=1, abroad=abroad).order_by('?')[0:count_proxy]
     ProxylistLen = len(ipProxylist)
     if ProxylistLen == 0:
         res["code"] = 304
@@ -178,6 +183,10 @@ def get_dict_proxy(request):
         ress["site"] = ipProxy.site.name
         res['result'].append(ress)
     return JsonResponse(res)
+
+
+def filter_proxy(request):
+    return HttpResponse(json.dumps("过滤成功一次"))
 
 
 def testmanage(request):
