@@ -173,7 +173,7 @@ def get_dict_proxy(request):
         res['code'] = 200
         res['mes'] = "获取代理成功"
     # 循环结果 加入结果集
-    for ipProxy ipProxylist:
+    for ipProxy in ipProxylist:
         ress = {}
         ress["ip"] = ipProxy.ip
         ress["port"] = ipProxy.port
