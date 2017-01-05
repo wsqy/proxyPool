@@ -34,7 +34,7 @@ def addxici(request):
         ListProxy = soup.find_all("tr")
     except Exception as e:
         mes = "获取西祠代理失败：%s" % e
-        return mes
+        return HttpResponse(json.dumps(mes))
     else:
         try:
             siteinfo = Site.objects.get(name="西祠代理")
