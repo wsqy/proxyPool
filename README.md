@@ -261,16 +261,10 @@ def addxici(request):
             # 属性中没有 class属性代表就是标题，这种是跳过的
             if 'class' in i.attrs:
                 infos = i.find_all("td")
-                # enumerate依次迭代
-                for index, info in enumerate(infos):
-                    if index == 1:
-                        info_list["ip"] = info.text.strip()
-                    elif index == 2:
-                        info_list["port"] = info.text.strip()
-                    elif index == 3:
-                        info_list["address"] = info.text.strip()
-                    elif index == 5:
-                        info_list["protocol"] = info.text.strip()
+                info_list["ip"] = infos[1].text.strip()
+                info_list["port"] = infos[2].text.strip()
+                info_list["address"] = infos[3].text.strip()
+                info_list["protocol"] = infos[5].text.strip()
                 # print(info_list)
             proxy_all.append(info_list)
     return HttpResponse(json.dumps(proxy_all))
@@ -492,3 +486,6 @@ get_dict_proxy查看views的相应部分
 ```
 
 免费的代理肯定是有很多问题的，说不定什么时候就失效了， 我们防止失效用的是加了一个字段 available ，分值0-3，在api调用的时候 只过滤分值大于0的代理
+
+但是到目前为止我们都还没有 做可用性的调整，导致我们随机取出一个给调用api的用户确并不能保证可用性的尴尬
+为了防止此问题我们可用写一个视图随机取出ip并验证是否可用的视图，如果可用，且分值小于3则加1，如果是3则不变，

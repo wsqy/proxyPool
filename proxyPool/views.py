@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 
 from .models import ProxyPool
+from .models import Site
 Headers = {
     "Host": "www.xicidaili.com",
     "Cookie": "CNZZDATA1256960793=1662416928-1459134890-%7C1461144106; _free_proxy_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFVEkiJTUzYzVkYmViZWYzNDY5YjFlNWVhNjFkZDhlYWZkYTE2BjsAVEkiEF9jc3JmX3Rva2VuBjsARkkiMUI1aTgrenAzTXBiUVpqQ21CZjh4MlFQRE1RWjZJMzl3ZnNweEs2azhTc3c9BjsARg%3D%3D--2c0a55d5198a778ed50af34e2b356ab878c17d72",
@@ -28,7 +29,6 @@ def addxici(request):
     try:
         r = requests.get(url, headers=Headers, proxies=None)
         soup = BeautifulSoup(r.content, "html.parser")
-        # ListProxy = soup.find_all("tr", limit=2)
         ListProxy = soup.find_all("tr")
     except Exception as e:
         mes = "获取西祠代理失败：%s" % e
@@ -36,20 +36,14 @@ def addxici(request):
     else:
         # 循环每条数据
         for i in ListProxy:
-            info_list = {'anonymous': True}
+            info_list = {'anonymous': True, 'site': Site.objects.get(name="西祠代理")}
             # 属性中没有 class属性代表就是标题，这种是跳过的
             if 'class' in i.attrs:
                 infos = i.find_all("td")
-                # enumerate依次迭代
-                for index, info in enumerate(infos):
-                    if index == 1:
-                        info_list["ip"] = info.text.strip()
-                    elif index == 2:
-                        info_list["port"] = info.text.strip()
-                    elif index == 3:
-                        info_list["address"] = info.text.strip()
-                    elif index == 5:
-                        info_list["protocol"] = info.text.strip()
+                info_list["ip"] = infos[1].text.strip()
+                info_list["port"] = infos[2].text.strip()
+                info_list["address"] = infos[3].text.strip()
+                info_list["protocol"] = infos[5].text.strip()
                 try:
                     ProxyPool.objects.create(**info_list)
                     print("添加成功")
