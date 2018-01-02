@@ -13,7 +13,7 @@ class ProxyPagination(PageNumberPagination):
     max_page_size = 20
 
 
-class ProxyPoolViewset(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class ProxyPoolViewset(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     """
     create:
         创建代理
@@ -28,3 +28,10 @@ class ProxyPoolViewset(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Re
     pagination_class = ProxyPagination
     filter_fields = ('protocol', 'available', 'site')
     search_fields = ('address', )
+
+    def perform_destroy(self, instance):
+        if instance.available <= 1:
+            instance.delete()
+        else:
+            instance.available -= 1
+            instance.save()
