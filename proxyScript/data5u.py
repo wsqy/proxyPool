@@ -60,4 +60,5 @@ if __name__ == '__main__':
     _type = sys.argv[1] if len(sys.argv)>1 else 'gngn'
     if _type in ('gngn', 'gnpt', 'gwgn', 'gwpt'):
         proxy_list = data5u(_type)
-        verify_main(proxy_list)
+        if proxy_list:
+            verify_main(proxy_list)

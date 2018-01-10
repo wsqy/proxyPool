@@ -56,4 +56,5 @@ if __name__ == '__main__':
     _type = sys.argv[1] if len(sys.argv)>1 else 'nn'
     if _type in ('wn', 'wt', 'nt', 'nn'):
         proxy_list = addxici(_type, 1)
-        verify_main(proxy_list)
+        if proxy_list:
+            verify_main(proxy_list)
