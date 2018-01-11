@@ -23,7 +23,7 @@ class Site(models.Model):
 class ProxyPool(models.Model):
     # verbose_name 这里是设置字段显示的名称
     ip = models.GenericIPAddressField(verbose_name="ip")
-    port = models.SmallIntegerField(verbose_name="port")
+    port = models.IntegerField(verbose_name="port")
     protocol = models.CharField(max_length=7, verbose_name="代理类型", default="HTTP")
     address = models.CharField(max_length=30, verbose_name="归宿地", default="")
     anonymous = models.BooleanField(verbose_name="是否匿名", default=True)

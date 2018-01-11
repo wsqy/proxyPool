@@ -78,6 +78,24 @@ WSGI_APPLICATION = 'proxyTest.wsgi.application'
 
 DATABASES = {
     'default': {
+        # 数据库引擎
+        'ENGINE': 'django.db.backends.mysql',
+        # 数据库名
+        'NAME': 'proxy',
+        # 用户名
+        'USER': 'proxy',
+        # 密码
+        'PASSWORD': 'hsd,87R78',
+        # 安装mysql数据库的主机ip
+        'HOST': '167.160.191.216',
+        'OPTIONS': {
+            'autocommit': True,
+            'init_command': 'SET default_storage_engine=INNODB',
+            "charset": "utf8mb4",
+
+        },
+    },
+    'default_bak': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
