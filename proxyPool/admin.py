@@ -17,7 +17,7 @@ proxy_invalid.short_description = "批量设置代理ip失效"
 @admin.register(ProxyPool)
 class ProxyPoolAdmin(admin.ModelAdmin):
     # 定义前端可显示的
-    list_display = ('id', 'ip', 'port', 'protocol', 'address', 'anonymous', 'abroad', 'available', 'site', )
+    list_display = ('id', 'ip', 'port', 'protocol', 'anonymous', 'abroad', 'available', 'site', 'add_time')
     # 定义前端可编辑的
     list_editable = ('available', )
     actions = (set_abroad, proxy_invalid, )
