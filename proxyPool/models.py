@@ -1,4 +1,5 @@
 from django.db import models
+import django.utils.timezone as timezone
 
 
 class Site(models.Model):
@@ -31,6 +32,7 @@ class ProxyPool(models.Model):
     available = models.SmallIntegerField(verbose_name="可用性", default=3)
     # 代理IP和站点是一对多的关系，设置下外键，default=1这里之前加的西祠代理 的id就是1
     site = models.ForeignKey(Site, verbose_name="站点", default=1)
+    add_time = models.DateTimeField(default=timezone.now, verbose_name="创建时间")
 
     class Meta:
         # 设置的是后台显示表名  默认是类名
