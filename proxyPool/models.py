@@ -29,7 +29,7 @@ class ProxyPool(models.Model):
     address = models.CharField(max_length=30, verbose_name="归宿地", default="")
     anonymous = models.BooleanField(verbose_name="是否匿名", default=True)
     abroad = models.BooleanField(verbose_name="是否是国外ip", default=False)
-    available = models.SmallIntegerField(verbose_name="可用性", default=3)
+    available = models.SmallIntegerField(verbose_name="可用性", default=5)
     # 代理IP和站点是一对多的关系，设置下外键，default=1这里之前加的西祠代理 的id就是1
     site = models.ForeignKey(Site, verbose_name="站点", default=1)
     add_time = models.DateTimeField(default=timezone.now, verbose_name="创建时间")
